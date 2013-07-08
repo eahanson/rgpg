@@ -1,0 +1,47 @@
+#!/usr/bin/env ruby
+
+require 'pathname'
+require 'tempfile'
+require 'gpg_helper'
+
+THIS_PATH = Pathname.new(__FILE__).realpath
+THIS_DIR = THIS_PATH.dirname
+THIS_BASE_NAME = File.basename($0, File.extname($0))
+
+GENERATE_KEY_PAIR_USAGE = '--generate-key-pair <key-base-name> <recipient> <real-name>'
+ENCRYPT_USAGE = '--encrypt <public-key-file-name> <input-file-name> <output-file-name>'
+DECRYPT_USAGE = '--decrypt <public-key-file-name> <private-key-file-name> <input-file-name> <output-file-name>'
+
+if ARGV[0] == '--generate-key-pair'
+  raise RuntimeError.new(GENERATE_KEY_PAIR_USAGE) unless ARGV.size == 4
+  key_base_name = ARGV[1]
+  recipient = ARGV[2]
+  real_name = ARGV[3]
+  GpgHelper.generate_key_pair(key_base_name, recipient, real_name)
+  exit 0
+elsif ARGV[0] == '--encrypt'
+  raise RuntimeError.new(ENCRYPT_USAGE) unless ARGV.size == 4
+  public_key_file_name = ARGV[1]
+  input_file_name = ARGV[2]
+  output_file_name = ARGV[3]
+  GpgHelper.encrypt_file(public_key_file_name, input_file_name, output_file_name)
+  exit 0
+elsif ARGV[0] == '--decrypt'
+  raise RuntimeError.new(DECRYPT_USAGE) unless ARGV.size == 5
+  public_key_file_name = ARGV[1]
+  private_key_file_name = ARGV[2]
+  input_file_name = ARGV[3]
+  output_file_name = ARGV[4]
+  GpgHelper.decrypt_file(public_key_file_name, private_key_file_name, input_file_name, output_file_name)
+  exit 0
+else
+  $stderr.puts "Unsupported command \"#{ARGV[0]}\"" unless ARGV[0].nil? || ARGV[0].size == 0
+  $stderr.puts 'Usage:'
+  $stderr.puts "  #{THIS_BASE_NAME} <command> <arg0> ... <argN-1>"
+  $stderr.puts 'Available commands:'
+  $stderr.puts "  #{GENERATE_KEY_PAIR_USAGE}"
+  $stderr.puts "  #{ENCRYPT_USAGE}"
+  $stderr.puts "  #{DECRYPT_USAGE}"
+  exit 1
+end
+

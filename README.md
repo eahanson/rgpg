@@ -9,7 +9,11 @@ _rgpg_ is a simple API for interacting with the `gpg` tool. It is specifically d
 
     gem install rgpg
 
-# Usage
+# Usage from terminal
+
+This gem adds an `rgpg` command. Type `rgpg` for usage information.
+
+# API usage
 
 ## To generate a GPG public-private key pair
 
