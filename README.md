@@ -7,7 +7,9 @@ _rgpg_ is a simple API for interacting with the `gpg` tool. It is specifically d
 
 # Installation
 
-    gem install rgpg
+```bash
+gem install rgpg
+```
 
 # Usage from terminal
 
@@ -17,21 +19,27 @@ This gem adds an `rgpg` command. Type `rgpg` for usage information.
 
 ## To generate a GPG public-private key pair
 
-    require 'gpg_helper'
+```ruby
+require 'rgpg'
 
-    GpgHelper.generate_key_pair 'mykey', 'me@example.com', 'Joe Bloggs'
+Rgpg::GpgHelper.generate_key_pair 'mykey', 'me@example.com', 'Joe Bloggs'
+```
 
 ## To encrypt a file
 
-    require 'gpg_helper'
+```ruby
+require 'rgpg'
 
-    GpgHelper.encrypt_file 'mykey.pub', 'myfile.txt', 'myfile.txt.enc'
+Rgpg::GpgHelper.encrypt_file 'mykey.pub', 'myfile.txt', 'myfile.txt.enc'
+```
 
 ## To decrypt a file
 
-    require 'gpg_helper'
+```ruby
+require 'rgpg'
 
-    GpgHelper.decrypt_file 'mykey.pub', 'mykey.sec', 'myfile.txt.enc', 'myfile.txt'
+Rgpg::GpgHelper.decrypt_file 'mykey.pub', 'mykey.sec', 'myfile.txt.enc', 'myfile.txt'
+```
 
 # Licence
 
