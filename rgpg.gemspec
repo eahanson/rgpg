@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.license = 'MIT'
   s.authors = 'Richard Cook'
   s.email = 'rcook@rcook.org'
-  s.files = ['MIT-LICENSE.txt'] + Dir.glob('lib/**/*.rb')
+  s.files = ['LICENSE'] + Dir.glob('lib/**/*.rb')
   s.require_paths = ['lib']
   s.homepage = 'https://github.com/rcook/rgpg/'
 end
