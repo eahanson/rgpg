@@ -6,7 +6,7 @@ require 'rgpg/gem_info'
 Gem::Specification.new do |s|
   s.name = 'rgpg'
   s.version = Rgpg::GemInfo.version_string
-  s.date = Date.today
+  s.date = Date.today rescue '1970-01-01'
   s.executables << 'rgpg'
   s.summary = 'rgpg'
   s.description = 'Simple Ruby wrapper around "gpg" command for file encryption'
