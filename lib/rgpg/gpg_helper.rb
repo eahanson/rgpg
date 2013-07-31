@@ -19,6 +19,9 @@ module Rgpg
     end
 
     def self.encrypt_file(public_key_file_name, input_file_name, output_file_name)
+      raise ArgumentError.new("Public key file \"#{public_key_file_name}\" does not exist") unless File.exist?(public_key_file_name)
+      raise ArgumentError.new("Input file \"#{input_file_name}\" does not exist") unless File.exist?(input_file_name)
+
       recipient = get_recipient(public_key_file_name)
       with_temporary_encrypt_keyring(public_key_file_name) do |keyring_file_name|
         run_gpg(
@@ -34,6 +37,10 @@ module Rgpg
     end
 
     def self.decrypt_file(public_key_file_name, private_key_file_name, input_file_name, output_file_name)
+      raise ArgumentError.new("Public key file \"#{public_key_file_name}\" does not exist") unless File.exist?(public_key_file_name)
+      raise ArgumentError.new("Private key file \"#{public_key_file_name}\" does not exist") unless File.exist?(private_key_file_name)
+      raise ArgumentError.new("Input file \"#{input_file_name}\" does not exist") unless File.exist?(input_file_name)
+
       recipient = get_recipient(private_key_file_name)
       with_temporary_decrypt_keyrings(public_key_file_name, private_key_file_name) do |keyring_file_name, secret_keyring_file_name|
         run_gpg(
