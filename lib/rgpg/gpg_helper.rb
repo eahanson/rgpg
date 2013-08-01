@@ -63,8 +63,14 @@ module Rgpg
         '--no-default-keyring'
       ] + args
       command_line = fragments.join(' ')
-      puts command_line
-      result = system(command_line)
+
+      output_file = Tempfile.new('gpg-output')
+      begin
+        output_file.close
+        result = system("#{command_line} > #{output_file.path} 2>&1")
+      ensure
+        output_file.unlink
+      end
       raise RuntimeError.new('gpg failed') unless result
     end
 
