@@ -1,4 +1,5 @@
 require 'tempfile'
+require 'shellwords'
 
 module Rgpg
   module GpgHelper
@@ -10,7 +11,7 @@ module Rgpg
       begin
         script_file.write(script)
         script_file.close
-        result = system("gpg --batch --gen-key #{script_file.path}")
+        result = system("gpg --batch --gen-key #{Shellwords.escape(script_file.path)}")
         raise RuntimeError.new('gpg failed') unless result
       ensure
         script_file.close
@@ -62,12 +63,12 @@ module Rgpg
         'gpg',
         '--no-default-keyring'
       ] + args
-      command_line = fragments.join(' ')
+      command_line = fragments.collect { |fragment| Shellwords.escape(fragment) }.join(' ')
 
       output_file = Tempfile.new('gpg-output')
       begin
         output_file.close
-        result = system("#{command_line} > #{output_file.path} 2>&1")
+        result = system("#{command_line} > #{Shellwords.escape(output_file.path)} 2>&1")
       ensure
         output_file.unlink
       end
