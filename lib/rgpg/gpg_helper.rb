@@ -11,8 +11,10 @@ module Rgpg
       begin
         script_file.write(script)
         script_file.close
-        result = system("gpg --batch --gen-key #{Shellwords.escape(script_file.path)}")
-        raise RuntimeError.new('gpg failed') unless result
+        run_gpg_no_capture(
+          '--batch',
+          '--gen-key', script_file.path
+        )
       ensure
         script_file.close
         script_file.unlink
@@ -25,7 +27,7 @@ module Rgpg
 
       recipient = get_recipient(public_key_file_name)
       with_temporary_encrypt_keyring(public_key_file_name) do |keyring_file_name|
-        run_gpg(
+        run_gpg_capture(
           '--keyring', keyring_file_name,
           '--output', output_file_name,
           '--encrypt',
@@ -44,7 +46,7 @@ module Rgpg
 
       recipient = get_recipient(private_key_file_name)
       with_temporary_decrypt_keyrings(public_key_file_name, private_key_file_name) do |keyring_file_name, secret_keyring_file_name|
-        run_gpg(
+        run_gpg_capture(
           '--keyring', keyring_file_name,
           '--secret-keyring', secret_keyring_file_name,
           '--output', output_file_name,
@@ -58,21 +60,37 @@ module Rgpg
 
     private
 
-    def self.run_gpg(*args)
+    def self.build_safe_command_line(*args)
       fragments = [
         'gpg',
         '--no-default-keyring'
       ] + args
-      command_line = fragments.collect { |fragment| Shellwords.escape(fragment) }.join(' ')
+      fragments.collect { |fragment| Shellwords.escape(fragment) }.join(' ')
+    end
+
+    def self.run_gpg_no_capture(*args)
+      command_line = build_safe_command_line(*args)
+      result = system(command_line)
+      raise RuntimeError.new('gpg failed') unless result
+    end
+
+    def self.run_gpg_capture(*args)
+      command_line = build_safe_command_line(*args)
 
       output_file = Tempfile.new('gpg-output')
       begin
         output_file.close
         result = system("#{command_line} > #{Shellwords.escape(output_file.path)} 2>&1")
+        raise RuntimeError.new('gpg failed') unless result
+
+        output = nil
+        File.open(output_file.path) do |f|
+          output = f.read
+        end
+        output.lines.collect(&:chomp)
       ensure
         output_file.unlink
       end
-      raise RuntimeError.new('gpg failed') unless result
     end
 
     def self.generate_key_script(public_key_file_name, private_key_file_name, recipient, real_name)
@@ -95,8 +113,7 @@ module Rgpg
     end
 
     def self.get_recipient(key_file_name)
-      result = `gpg #{key_file_name}`.lines.first.chomp
-      raise RuntimeError.new('gpg failed') unless $?
+      result = run_gpg_capture(key_file_name).first
       result =~ /^(pub|sec)\s+\d+D\/([0-9a-fA-F]{8}).+<(.+)>/ or raise RuntimeError.new('Invalid output')
       key_id = $2
       recipient = $3
@@ -105,7 +122,7 @@ module Rgpg
 
     def self.with_temporary_encrypt_keyring(public_key_file_name)
       with_temporary_keyring_file do |keyring_file_name|
-        run_gpg(
+        run_gpg_capture(
           '--keyring', keyring_file_name,
           '--import', public_key_file_name
         )
@@ -116,7 +133,7 @@ module Rgpg
     def self.with_temporary_decrypt_keyrings(public_key_file_name, private_key_file_name)
       with_temporary_keyring_file do |keyring_file_name|
         with_temporary_keyring_file do |secret_keyring_file_name|
-          run_gpg(
+          run_gpg_capture(
             '--keyring', keyring_file_name,
             '--secret-keyring', secret_keyring_file_name,
             '--import', private_key_file_name
