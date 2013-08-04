@@ -60,36 +60,48 @@ module Rgpg
 
     private
 
-    def self.build_safe_command_line(*args)
+    def self.with_temp_home_dir
+      Dir.mktmpdir('.rgpg-tmp-', ENV['HOME']) do |home_dir|
+        yield home_dir
+      end
+    end
+
+    def self.build_safe_command_line(home_dir, *args)
       fragments = [
         'gpg',
+        '--homedir', home_dir,
         '--no-default-keyring'
       ] + args
       fragments.collect { |fragment| Shellwords.escape(fragment) }.join(' ')
     end
 
     def self.run_gpg_no_capture(*args)
-      command_line = build_safe_command_line(*args)
-      result = system(command_line)
-      raise RuntimeError.new('gpg failed') unless result
+      with_temp_home_dir do |home_dir|
+        command_line = build_safe_command_line(home_dir, *args)
+        result = system(command_line)
+        raise RuntimeError.new('gpg failed') unless result
+      end
     end
 
     def self.run_gpg_capture(*args)
-      command_line = build_safe_command_line(*args)
+      with_temp_home_dir do |home_dir|
+        command_line = build_safe_command_line(home_dir, *args)
 
-      output_file = Tempfile.new('gpg-output')
-      begin
-        output_file.close
-        result = system("#{command_line} > #{Shellwords.escape(output_file.path)} 2>&1")
-        raise RuntimeError.new('gpg failed') unless result
+        output_file = Tempfile.new('gpg-output')
+        begin
+          output_file.close
+          result = system("#{command_line} > #{Shellwords.escape(output_file.path)} 2>&1")
 
-        output = nil
-        File.open(output_file.path) do |f|
-          output = f.read
+          output = nil
+          File.open(output_file.path) do |f|
+            output = f.read
+          end
+          raise RuntimeError.new("gpg failed: #{output}") unless result
+
+          output.lines.collect(&:chomp)
+        ensure
+          output_file.unlink
         end
-        output.lines.collect(&:chomp)
-      ensure
-        output_file.unlink
       end
     end
 
@@ -113,11 +125,11 @@ module Rgpg
     end
 
     def self.get_recipient(key_file_name)
-      result = run_gpg_capture(key_file_name).first
-      result =~ /^(pub|sec)\s+\d+D\/([0-9a-fA-F]{8}).+<(.+)>/ or raise RuntimeError.new('Invalid output')
+      lines = run_gpg_capture(key_file_name)
+      result = lines.detect { |line| line =~ /^(pub|sec)\s+\d+D\/([0-9a-fA-F]{8}).+<(.+)>/ }
+      raise RuntimeError.new('Invalid output') unless result
       key_id = $2
       recipient = $3
-      recipient
     end
 
     def self.with_temporary_encrypt_keyring(public_key_file_name)
