@@ -126,7 +126,7 @@ module Rgpg
 
     def self.get_recipient(key_file_name)
       lines = run_gpg_capture(key_file_name)
-      result = lines.detect { |line| line =~ /^(pub|sec)\s+\d+D\/([0-9a-fA-F]{8}).+<(.+)>/ }
+      result = lines.detect { |line| line =~ /^(pub|sec)\s+\d+(D|R)\/([0-9a-fA-F]{8}).+<(.+)>/ }
       raise RuntimeError.new('Invalid output') unless result
       key_id = $2
       recipient = $3
