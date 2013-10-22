@@ -54,7 +54,7 @@ module Rgpg
                '--trust-model', 'always',
                input_file_name
         args.unshift '--passphrase', passphrase unless passphrase.nil?
-        run_gpg_capture(args)
+        run_gpg_capture(*args)
       end
     end
 
