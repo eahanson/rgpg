@@ -24,12 +24,13 @@ elsif ARGV[0] == '--encrypt'
   Rgpg::GpgHelper.encrypt_file(public_key_file_name, input_file_name, output_file_name)
   exit 0
 elsif ARGV[0] == '--decrypt'
-  raise RuntimeError.new(DECRYPT_USAGE) unless ARGV.size == 5
+  raise RuntimeError.new(DECRYPT_USAGE) unless ARGV.size == 5 || ARGV.size == 6
   public_key_file_name = ARGV[1]
   private_key_file_name = ARGV[2]
   input_file_name = ARGV[3]
   output_file_name = ARGV[4]
-  Rgpg::GpgHelper.decrypt_file(public_key_file_name, private_key_file_name, input_file_name, output_file_name)
+  ARGV.size == 6 ? passphrase = ARGV[5] : passphrase = nil
+  Rgpg::GpgHelper.decrypt_file(public_key_file_name, private_key_file_name, input_file_name, output_file_name, passphrase)
   exit 0
 else
   $stderr.puts "Unsupported command \"#{ARGV[0]}\"" unless ARGV[0].nil? || ARGV[0].size == 0

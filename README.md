@@ -37,7 +37,7 @@ Rgpg::GpgHelper.encrypt_file 'mykey.pub', 'myfile.txt', 'myfile.txt.enc'
 ```ruby
 require 'rgpg'
 
-Rgpg::GpgHelper.decrypt_file 'mykey.pub', 'mykey.sec', 'myfile.txt.enc', 'myfile.txt'
+Rgpg::GpgHelper.decrypt_file 'mykey.pub', 'mykey.sec', 'myfile.txt.enc', 'myfile.txt' [, 'secret_key_passphrase']
 ```
 
 # Licence
