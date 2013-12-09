@@ -1,8 +1,8 @@
 module Rgpg
   module GemInfo
     MAJOR_VERSION = 0
-    MINOR_VERSION = 2
-    PATCH_VERSION = 4
+    MINOR_VERSION = 3
+    PATCH_VERSION = 0
 
     def self.version_string
       [MAJOR_VERSION, MINOR_VERSION, PATCH_VERSION].join('.')
