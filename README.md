@@ -1,4 +1,4 @@
-# rgpg [![Install gem](https://badge.fury.io/rb/rgpg.png)](https://rubygems.org/gems/rgpg) [![Build status](https://travis-ci.org/rcook/rgpg.png)](https://travis-ci.org/rcook/rgpg)
+# rgpg [![Install gem](https://badge.fury.io/rb/rgpg.png)](https://rubygems.org/gems/rgpg) [![Build status](https://travis-ci.org/rcook/rgpg.png?branch=master,0.3.0,0.2.4)](https://travis-ci.org/rcook/rgpg)
 
 A simple Ruby wrapper around `gpg` command for file encryption
 
