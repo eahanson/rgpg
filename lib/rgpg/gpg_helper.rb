@@ -41,7 +41,7 @@ module Rgpg
 
     def self.decrypt_file(public_key_file_name, private_key_file_name, input_file_name, output_file_name, passphrase=nil)
       raise ArgumentError.new("Public key file \"#{public_key_file_name}\" does not exist") unless File.exist?(public_key_file_name)
-      raise ArgumentError.new("Private key file \"#{public_key_file_name}\" does not exist") unless File.exist?(private_key_file_name)
+      raise ArgumentError.new("Private key file \"#{private_key_file_name}\" does not exist") unless File.exist?(private_key_file_name)
       raise ArgumentError.new("Input file \"#{input_file_name}\" does not exist") unless File.exist?(input_file_name)
 
       recipient = get_recipient(private_key_file_name)
